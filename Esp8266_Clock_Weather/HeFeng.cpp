@@ -121,7 +121,7 @@ void HeFeng::doUpdateFore(HeFengForeData *data, String key, String location) {  
       if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
         String payload = https.getString();
         Serial.println(payload);
-        DynamicJsonDocument  jsonBuffer(4096);
+        DynamicJsonDocument  jsonBuffer(2048);
         deserializeJson(jsonBuffer, payload);
         JsonObject root = jsonBuffer.as<JsonObject>();
         int i;

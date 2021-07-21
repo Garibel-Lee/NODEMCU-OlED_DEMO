@@ -6,10 +6,8 @@
 #define TCP_SERVER_ADDR "bemfa.com"
 #define TCP_SERVER_PORT "8344"
 
-//********************需要修改的部分*******************//
+//********************远程开关机需要修改的部分*******************//
 
-#define DEFAULT_STASSID  "DEMO"     //WIFI名称，区分大小写，不要写错
-#define DEFAULT_STAPSW   "js@zj5123"  //WIFI密码
 #define MACAddress "2C:F0:5D:AC:19:85"  //电脑的MAC地址
 String UID = "a8aa48cca59f4f0d287d4f955c209178";  //用户私钥，可在控制台获取,修改为自己的UID
 String TOPIC =   "PC001";         //主题名字，可在控制台新建
@@ -26,7 +24,6 @@ String PCurl = computer_ip+"/"+secret_code+"/"+"shutdown";
 #define KEEPALIVEATIME 30*1000
 
 
-
 //tcp客户端相关初始化，默认即可
 WiFiClient TCPclient;
 String TcpClient_Buff = "";
@@ -40,26 +37,22 @@ WakeOnLan WOL(UDP);
 
 
 //相关函数初始化
-//连接WIFI
+//检查wifi连接状态
 void doWiFiTick();
-//void startSTA();
 
 //TCP初始化连接
 void doTCPClientTick();
 void startTCPClient();
 void sendtoTCPServer(String p);
 
-//led 控制函数
-void turnOnLed();
-void turnOffLed();
-
-
+//开关机命令 控制函数
+void openComputer();
+void closeComputer();
 
 /*
   *发送数据到TCP服务器
  */
 void sendtoTCPServer(String p){
-  
   if (!TCPclient.connected()) 
   {
     Serial.println("Client is not readly");
@@ -125,7 +118,6 @@ void doTCPClientTick(){
       TcpClient_Buff +=c;
       TcpClient_BuffIndex++;
       TcpClient_preTick = millis();
-      
       if(TcpClient_BuffIndex>=MAX_PACKETSIZE - 1){
         TcpClient_BuffIndex = MAX_PACKETSIZE-2;
         TcpClient_preTick = TcpClient_preTick - 200;
@@ -139,47 +131,36 @@ void doTCPClientTick(){
     }
   }
   if((TcpClient_Buff.length() >= 1) && (millis() - TcpClient_preTick>=200))
-  {//data ready
+  {
+    //data ready
     TCPclient.flush();
     Serial.println("Buff");
     Serial.println(TcpClient_Buff);
     if((TcpClient_Buff.indexOf("&msg=on") > 0)) {
-      turnOnLed();
+      openComputer();
     }else if((TcpClient_Buff.indexOf("&msg=off") > 0)) {
-      turnOffLed();
+      closeComputer();
     }
    TcpClient_Buff="";
    TcpClient_BuffIndex = 0;
   }
 }
 
-//void startSTA(){
-//  WiFi.disconnect();
-//  WiFi.mode(WIFI_STA);
-//  WiFi.begin(DEFAULT_STASSID, DEFAULT_STAPSW);
-//}
 
 
 
-/**************************************************************************
-                                 WIFI
-***************************************************************************/
-/*
-  WiFiTick
-  检查是否需要初始化WiFi
-  检查WiFi是否连接上，若连接成功启动TCP Client
-  控制指示灯
-*/
 void doWiFiTick(){
-
   static bool taskStarted = false;
   static uint32_t lastWiFiCheckTick = 0;
 
-  //未连接1s重连
+  //断开连接重启设备接入网络
   if ( WiFi.status() != WL_CONNECTED ) {
-    if (millis() - lastWiFiCheckTick > 1000) {
-      lastWiFiCheckTick = millis();
-    }
+    if (millis() - lastWiFiCheckTick > 5000) {
+        ESP.restart();
+        delay(1000);
+      }else{
+         lastWiFiCheckTick = millis();
+      }
   }
   //连接成功建立
   else {
@@ -192,17 +173,14 @@ void doWiFiTick(){
   }
 }
 
-
-
 //开机
-void turnOnLed(){
+void openComputer(){
   Serial.println("Turn ON");
   WOL.sendMagicPacket(MACAddress);
 }
 
-
 //关机
-void turnOffLed(){
+void closeComputer(){
   Serial.println("Turn OFF");
   HTTPClient http;
   http.begin(PCurl.c_str());
@@ -219,8 +197,6 @@ void turnOffLed(){
   }
   http.end();
 }
-
-
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
@@ -245,9 +221,6 @@ void turnOffLed(){
 /***************************
    Begin Settings
  **************************/
-
-const char* WIFI_SSID = "DEMO";  //填写你的WIFI名称及密码
-const char* WIFI_PWD = "js@zj5123";
 
 const char* BILIBILIID = "74383847";  //填写你的B站账号
 
@@ -335,9 +308,6 @@ void setup() {
   //Web配网，密码直连请注释
   webconnect();
   
-  // 用固定密码连接，Web配网请注释
-  //wificonnect();
-
   ui.setTargetFPS(30);  //刷新频率
 
   ui.setActiveSymbol(activeSymbole); //设置活动符号
@@ -352,7 +322,7 @@ void setup() {
 
   // 屏幕切换方向
   // 您可以更改使用的屏幕切换方向 SLIDE_LEFT, SLIDE_RIGHT, SLIDE_TOP, SLIDE_DOWN
-  ui.setFrameAnimation(SLIDE_LEFT);
+  ui.setFrameAnimation(SLIDE_RIGHT);
 
   ui.setFrames(frames, numberOfFrames); // 设置框架
   ui.setTimePerFrame(5000); //设置切换时间
@@ -369,7 +339,12 @@ void setup() {
 }
 
 void loop() {
-  if (first) {  //首次加载
+  //远程开关机模块循环检查wifi连接TCP连接
+  doWiFiTick();
+  doTCPClientTick();
+
+  //桌面时钟日期的首次加载
+  if (first) { 
     updateDatas(&display);
     first = false;
   }
@@ -393,52 +368,11 @@ void loop() {
     //你可以在这里工作如果你低于你的时间预算。
     delay(remainingTimeBudget);
   }
-  doWiFiTick();
-  doTCPClientTick();
+
 }
 
-//void wificonnect() {  //WIFI密码连接，Web配网请注释
-//  WiFi.begin(WIFI_SSID, WIFI_PWD);
-//  while (WiFi.status() != WL_CONNECTED) {
-//    Serial.print('.');
-//    delay(80);
-//    display.clear();
-//    display.drawXbm(34, 0, bili_Logo_width, bili_Logo_height, bili_Logo_5);
-//    display.display();
-//    delay(80);
-//    display.clear();
-//    display.drawXbm(34, 0, bili_Logo_width, bili_Logo_height, bili_Logo_6);
-//    display.display();
-//    delay(80);
-//    display.clear();
-//    display.drawXbm(34, 0, bili_Logo_width, bili_Logo_height, bili_Logo_7);
-//    display.display();
-//    delay(80);
-//    display.clear();
-//    display.drawXbm(34, 0, bili_Logo_width, bili_Logo_height, bili_Logo_8);
-//    display.display();
-//    delay(80);
-//    display.clear();
-//    display.drawXbm(34, 0, bili_Logo_width, bili_Logo_height, bili_Logo_1);
-//    display.display();
-//    delay(80);
-//    display.clear();
-//    display.drawXbm(34, 0, bili_Logo_width, bili_Logo_height, bili_Logo_2);
-//    display.display();
-//    delay(80);
-//    display.clear();
-//    display.drawXbm(34, 0, bili_Logo_width, bili_Logo_height, bili_Logo_3);
-//    display.display();
-//    delay(80);
-//    display.clear();
-//    display.drawXbm(34, 0, bili_Logo_width, bili_Logo_height, bili_Logo_4);
-//    display.display();
-//  }
-//  Serial.println("");
-//  delay(500);
-//}
-
-void webconnect() {  ////Web配网，密码直连将其注释
+//Web配网，密码直连将其注释
+void webconnect() {  
   display.clear();
   display.drawXbm(0, 0, 128, 64, bilibili); //显示哔哩哔哩
   display.display();
@@ -447,7 +381,7 @@ void webconnect() {  ////Web配网，密码直连将其注释
   wifiManager.setDebugOutput(false); //关闭Debug
   //wifiManager.setConnectTimeout(10); //设置超时
   wifiManager.setHeadImgBase64(FPSTR(Icon)); //设置图标
-  wifiManager.setPageTitle("欢迎来到WiFi配置页");  //设置页标题
+  wifiManager.setPageTitle("开始接入WiFi吧");  //设置页标题
 
   if (!wifiManager.autoConnect("Garibel-IOT-Display")) {  //AP模式
     Serial.println("连接失败并超时");
