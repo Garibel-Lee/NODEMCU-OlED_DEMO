@@ -237,8 +237,8 @@ const int UPDATE_CURR_INTERVAL_SECS = 10 * 59; // 2分钟更新一次粉丝数
 
 const int I2C_DISPLAY_ADDRESS = 0x3c;  //I2c地址默认
 #if defined(ESP8266)
-const int SDA_PIN = 4;  //引脚连接
-const int SDC_PIN = 5;  //
+const int SDA_PIN = 4;  //D1;
+const int SDC_PIN = 5;  //D2;
 #endif
 
 const String WDAY_NAMES[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};  //星期

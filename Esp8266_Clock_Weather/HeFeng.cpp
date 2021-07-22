@@ -164,70 +164,133 @@ void HeFeng::doUpdateFore(HeFengForeData *data, String key, String location) {  
   }
 
 }
-
-String HeFeng::getMeteoconIcon(String cond_code) {  //获取天气图标
-  if (cond_code == "100" || cond_code == "9006") {
-    return "B";
-  }
-  if (cond_code == "999") {
-    return ")";
-  }
-  if (cond_code == "104") {
-    return "D";
-  }
-  if (cond_code == "500") {
-    return "E";
-  }
-  if (cond_code == "503" || cond_code == "504" || cond_code == "507" || cond_code == "508") {
-    return "F";
-  }
-  if (cond_code == "499" || cond_code == "901") {
-    return "G";
-  }
-  if (cond_code == "103") {
-    return "H";
-  }
-  if (cond_code == "502" || cond_code == "511" || cond_code == "512" || cond_code == "513") {
-    return "L";
-  }
-  if (cond_code == "501" || cond_code == "509" || cond_code == "510" || cond_code == "514" || cond_code == "515") {
-    return "M";
-  }
-  if (cond_code == "102") {
-    return "N";
-  }
-  if (cond_code == "213") {
-    return "O";
-  }
-  if (cond_code == "302" || cond_code == "303") {
-    return "P";
-  }
-  if (cond_code == "305" || cond_code == "308" || cond_code == "309" || cond_code == "314" || cond_code == "399") {
-    return "Q";
-  }
-  if (cond_code == "306" || cond_code == "307" || cond_code == "310" || cond_code == "311" || cond_code == "312" || cond_code == "315" || cond_code == "316" || cond_code == "317" || cond_code == "318") {
-    return "R";
-  }
-  if (cond_code == "200" || cond_code == "201" || cond_code == "202" || cond_code == "203" || cond_code == "204" || cond_code == "205" || cond_code == "206" || cond_code == "207" || cond_code == "208" || cond_code == "209" || cond_code == "210" || cond_code == "211" || cond_code == "212") {
-    return "S";
-  }
-  if (cond_code == "300" || cond_code == "301") {
-    return "T";
-  }
-  if (cond_code == "400" || cond_code == "408") {
-    return "U";
-  }
-  if (cond_code == "407") {
-    return "V";
-  }
-  if (cond_code == "401" || cond_code == "402" || cond_code == "403" || cond_code == "409" || cond_code == "410") {
-    return "W";
-  }
-  if (cond_code == "304" || cond_code == "313" || cond_code == "404" || cond_code == "405" || cond_code == "406") {
-    return "X";
-  }
-  if (cond_code == "101") {
-    return "Y";
-  }
-  return ")";
-}
+/**
+ * https://blog.csdn.net/weixin_42880082/article/details/112056586
+ * https://dev.qweather.com/docs/start/icons/
+ */
+ String HeFeng::getMeteoconIcon(String cond_code) {
+        if (cond_code == "100") {
+            return "B";
+        }
+        if (cond_code == "101") {
+            return "Y";
+        }
+        if (cond_code == "102") {
+            return "N";
+        }
+        if (cond_code == "103") {
+            return "H";
+        }
+        if (cond_code == "104") {
+            return "H";
+        }
+        if (cond_code == "150") {
+            return "2";
+        }
+        if (cond_code == "153") {
+            return "4";
+        }
+        if (cond_code == "154") {
+            return "4";
+        }
+        if (cond_code == "300") {
+            return "Q";
+        }
+        if (cond_code == "301") {
+            return "R";
+        }
+        if (cond_code == "302") {
+            return "O";
+        }
+        if (cond_code == "303") {
+            return "P";
+        }
+        if (cond_code == "304") {
+            return "O";
+        }
+        if (cond_code == "305") {
+            return "Q";
+        }
+        if (cond_code == "306") {
+            return "R";
+        }
+        if (cond_code == "307") {
+            return "R";
+        }
+        if (cond_code == "308") {
+            return "R";
+        }
+        if (cond_code == "309" || cond_code == "314") {
+            return "Q";
+        }
+        if (cond_code == "310" || cond_code == "311" || cond_code == "312" || cond_code == "313" || cond_code == "315" || cond_code == "316" || cond_code == "317") {
+            return "R";
+        }
+        if (cond_code == "318") {
+            return "8";
+        }
+        if (cond_code == "350") {
+            return "7";
+        }
+        if (cond_code == "351") {
+            return "8";
+        }
+        if (cond_code == "399") {
+            return "Q";
+        }
+        if (cond_code == "400") {
+            return "U";
+        }
+        if (cond_code == "402") {
+            return "V";
+        }
+        if (cond_code == "403") {
+            return "V";
+        }
+        if (cond_code == "404") {
+            return "V";
+        }
+        if (cond_code == "405") {
+            return "X";
+        }
+        if (cond_code == "406") {
+            return "U";
+        }
+        if (cond_code == "407") {
+            return "U";
+        }
+        if (cond_code == "408") {
+            return "U";
+        }
+        if (cond_code == "409") {
+            return "V";
+        }
+        if (cond_code == "410") {
+            return "V";
+        }
+        if (cond_code == "456") {
+            return "U";
+        }
+        if (cond_code == "457") {
+            return "V";
+        }
+        if (cond_code == "459") {
+            return "W";
+        }
+        if (cond_code == "500") {
+            return "E";
+        }
+        if (cond_code == "501" || cond_code == "502" || cond_code == "503" || cond_code == "504" || cond_code == "509" || cond_code == "510" || cond_code == "511" || cond_code == "512" || cond_code == "513" || cond_code == "514" || cond_code == "515" || cond_code == "514") {
+            return "M";
+        }
+        if (cond_code == "507") {
+            return "F";
+        }
+        if (cond_code == "508") {
+            return "N";
+        }
+        if (cond_code == "900" || cond_code == "901") {
+            return "'";
+        }
+        return ")";
+    }
